@@ -112,6 +112,17 @@
         letter-spacing:0.6px;
     }
 
+    /* ensure images fill the ratio box and don't add extra space */
+    .fc-image img{
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        display:block;
+    }
+
     .fc-image .fc-image-text{
         font-size:14px;
         background: rgba(255,255,255,0.6);
@@ -168,42 +179,62 @@
     }
 </style>
 
-<section class="featured-collection" aria-labelledby="fc-title">
-    <div class="container">
-        <header class="fc-header">
-            <h2 id="fc-title">Featured Collection — Placeholder Title</h2>
-            <p class="fc-subtitle">This is placeholder text. Replace with a short description that highlights your collection's story.</p>
-        </header>
-
-        <div class="fc-controls">
-            <a href="#" class="btn btn-outline" role="button">View collection</a>
-        </div>
-
         <div class="fc-grid">
-            {% comment %} Placeholder product cards — iterate or replace with real product loop {% endcomment %}
-            {% for i in (1..4) %}
-                <article class="fc-card" aria-labelledby="product-{{ i }}">
-                    <div class="fc-image" role="img" aria-label="Product image placeholder">
-                        <span class="fc-image-text">Image {{ i }}</span>
-                    </div>
+        {% if section.settings.featured_collection and section.settings.featured_collection.products %}
+            {% assign product_coll = section.settings.featured_collection.products %}
+            <script>
+                console.log("featured_product:", {{product_coll | json}})
+            </script>
+            {% for featured_product in product_coll %}
 
+                <article class="fc-card">
+                    <a href="{{ featured_product.url }}" class="fc-image-link" aria-label="View {{ featured_product.title }}">
+                        <div class="fc-image" role="img" aria-label="{{ featured_product.title }}">
+                            <img src="{{ featured_product.featured_image | img_url: '400' }}" alt="{{ featured_product.title }}" />
+                        </div>
+                    </a>
                     <div class="fc-card-body">
-                        <h3 id="product-{{ i }}" class="product-title">Product name {{ i }}</h3>
-                        <p class="product-price">€00.00</p>
-                        <p class="product-desc">Short placeholder description for product {{ i }}. Swap in dynamic product data as needed.</p>
-                        <a href="#" class="btn btn-primary" role="button">Add to cart</a>
+                        <h3 class="product-title">{{ featured_product.title }}</h3>
+                        <p class="product-price">{{ featured_product.price | money }}</p>
+                        <p class="product-desc">{{ featured_product.description }}</p>
+                        <a href="{{ featured_product.url }}" class="btn btn-primary" role="button">Add to cart</a>
                     </div>
                 </article>
             {% endfor %}
+        {% else %}
+            <p class="fc-subtitle">No products found in the selected collection.</p>
+        {% endif %}
         </div>
-    </div>
-</section>
 
 {% schema %}
 {
     "name": "Featured Collection",
     "tag": "section",
-    "settings": [],
+    "settings": [
+    {
+      "type": "text",
+      "id": "featured_title",
+      "label": "Featured Title",
+      "default": "Featured Collection"
+    },
+    {
+      "type": "text",
+      "id": "featured_subtitle",
+      "label": "Featured Subtitle",
+      "default":"Add featured subtitle here"
+    },
+    {
+      "type": "url",
+      "id": "featured_collection_url",
+      "label": "Featured Collection Link"
+    },
+    {
+      "type": "collection",
+      "id": "featured_collection",
+      "label": "Collection"
+    }
+    
+    ],
     "presets": [
         {
             "name": "Featured Collection",
@@ -213,3 +244,5 @@
 
 }
 {% endschema %}
+
+

@@ -1,8 +1,33 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
-    "sections": {
-        "heading_t":{
-            "type":"heading"
-        }
+  "sections": {
+    "heading_t": {
+      "type": "heading",
+      "settings": {
+        "text_id": "Hello World"
+      }
     },
-    "order":["heading_t"]
+    "featured_collection_RhxjaN": {
+      "type": "featured-collection",
+      "name": "Featured Collection",
+      "settings": {
+        "featured_title": "Featured Collection",
+        "featured_subtitle": "Add featured subtitle here",
+        "featured_collection_url": "",
+        "featured_collection": "fiction-books"
+      }
+    }
+  },
+  "order": [
+    "heading_t",
+    "featured_collection_RhxjaN"
+  ]
 }
