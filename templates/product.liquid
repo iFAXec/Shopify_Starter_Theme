@@ -1,1 +1,247 @@
-{{product.title}}
+{{ 'splide.min.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'splide.min.js' | asset_url }}" defer></script>
+
+<style>
+    /* Basic reset */
+    :root {
+        --gap: 20px;
+        --max-width: 1200px;
+        --accent: #0a66c2;
+        --muted: #6b7280;
+        --radius: 8px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #111827;
+    }
+
+    .product-page {
+        max-width: var(--max-width);
+        margin: 30px auto;
+        padding: 0 16px;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap);
+        align-items: start;
+    }
+
+    /* Gallery (left) */
+    .gallery {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+/* splide CSS */
+     
+ .thumbnails {
+  display: flex;
+  margin: 1rem auto 0;
+  padding: 0;
+  justify-content: center;
+  list-style: none;
+}
+
+.thumbnail {
+  width: 70px;
+  height: 70px;
+  overflow: hidden;
+  margin: 0 0.2rem;
+  cursor: pointer;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Details (right) */
+.product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-self: start;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vendor {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.description {
+    color: #374151;
+    line-height: 1.5;
+    font-size: 0.975rem;
+}
+
+.actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.qty {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #e6e9ee;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.add-to-cart {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.add-to-cart:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .thumbnails {
+        gap: 6px;
+    }
+
+    .thumbnail {
+        width: 56px;
+        height: 56px;
+    }
+}
+</style>
+
+<script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof Splide === 'undefined') return;
+
+        var splide = new Splide('#main-carousel', {
+            width:400,
+            height:400,
+            pagination: false,
+            cover:true
+        });
+
+        splide.mount();
+
+        // Collect thumbnail elements inside #thumbnails and wire click to move carousel
+        var thumbnails = document.querySelectorAll('#thumbnails .thumbnail');
+
+        for (var i = 0; i < thumbnails.length; i++) {
+            (function (index) {
+                thumbnails[index].addEventListener('click', function () {
+                    splide.go(index);
+                });
+            })(i);
+        }
+    });
+</script>
+
+<div class="product-page">
+    {%- if product -%}
+    <div class="product-grid">
+        <!-- LEFT: Gallery -->
+        <div class="gallery">
+            <section id="main-carousel" class="splide" aria-label="Product gallery">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        {% for media in product.media %}
+                        <li class="splide__slide">
+                            <img src="{{ media.preview_image | img_url: '600' }}" alt="{{ media.alt | escape }}">
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+            <ul id="thumbnails" class="thumbnails">
+                {% for media in product.media %}
+                <li class="thumbnail">
+                    <img src="{{ media.preview_image | img_url: '200' }}" alt="{{ media.alt | escape }}">
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- RIGHT: Details -->
+        <div class="product-details">
+            <div>
+                <h1 class="title">{{ product.title }}</h1>
+                {%- if product.vendor -%}
+                <div class="vendor">{{ product.vendor }}</div>
+                {%- endif -%}
+            </div>
+
+            <div class="price">
+                {%- if product.compare_at_price_max > product.price -%}
+                <span style="text-decoration:line-through;color:var(--muted);font-weight:500;margin-right:8px;">
+                    {{ product.compare_at_price_max | money }}
+                </span>
+                {%- endif -%}
+                <span>{{ product.price | money }}</span>
+            </div>
+
+            <div class="description">
+                {{ product.description | strip_html | truncate: 400 }}
+            </div>
+
+            <form action="/cart/add" method="post" class="cart-form" style="margin-top:6px">
+                {%- if product.variants.size > 1 -%}
+                <label for="ProductSelect">Variant</label>
+                <select id="ProductSelect" name="id" class="qty"
+                    style="width:100%;margin-top:6px;margin-bottom:8px;">
+                    {%- for variant in product.variants -%}
+                    <option value="{{ variant.id }}">{{ variant.title }} — {{ variant.price | money }}</option>
+                    {%- endfor -%}
+                </select>
+                {%- else -%}
+                <!-- single-variant product -->
+                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+                {%- endif -%}
+
+                <div class="actions">
+                    <input type="number" name="quantity" value="1" min="1" class="qty" aria-label="Quantity">
+                    <button type="submit" class="add-to-cart">Add to cart</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {%- else -%}
+    <p>Product not found.</p>
+    {%- endif -%}
+</div>
