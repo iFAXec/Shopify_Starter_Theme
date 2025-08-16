@@ -1,0 +1,215 @@
+<style>
+    :root{
+        --bg:#f7fbff;
+        --card:#ffffff;
+        --muted:#6b7280;
+        --accent:#0ea5a4;
+        --accent-2:#06b6d4;
+        --radius:12px;
+        --max-width:1180px;
+        --gutter:24px;
+        --shadow: 0 6px 20px rgba(15,23,42,0.06);
+        --glass: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35));
+    }
+
+    .featured-collection{
+        background: linear-gradient(180deg, rgba(14,165,164,0.03), rgba(6,182,212,0.01)), var(--bg);
+        padding: 56px 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        color: #0f172a;
+    }
+
+    .featured-collection .container{
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 var(--gutter);
+    }
+
+    .fc-header{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        margin-bottom:18px;
+    }
+
+    .fc-header h2{
+        font-size: clamp(20px, 2.4vw, 30px);
+        line-height:1.05;
+        margin:0;
+        letter-spacing:-0.2px;
+    }
+
+    .fc-subtitle{
+        color:var(--muted);
+        margin:0;
+        font-size:14px;
+    }
+
+    .fc-controls{
+        display:flex;
+        justify-content:flex-end;
+        margin-bottom:18px;
+    }
+
+    .btn{
+        display:inline-block;
+        text-decoration:none;
+        padding:10px 14px;
+        border-radius:10px;
+        font-weight:600;
+        font-size:14px;
+        transition:transform .18s ease, box-shadow .18s ease;
+        cursor:pointer;
+    }
+
+    .btn:hover{ transform: translateY(-3px); }
+
+    .btn-primary{
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color:white;
+        box-shadow: 0 8px 24px rgba(6,182,212,0.18);
+    }
+
+    .btn-outline{
+        background:transparent;
+        color:var(--accent);
+        border:1px solid rgba(14,165,164,0.12);
+        backdrop-filter: blur(4px);
+    }
+
+    .fc-grid{
+        display:grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap:18px;
+    }
+
+    .fc-card{
+        background: var(--card);
+        border-radius: var(--radius);
+        overflow:hidden;
+        box-shadow: var(--shadow);
+        display:flex;
+        flex-direction:column;
+        min-height:100%;
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .fc-card:hover{
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(15,23,42,0.12);
+    }
+
+    .fc-image{
+        width:100%;
+        position:relative;
+        padding-top:75%;
+        background: linear-gradient(135deg, rgba(14,165,164,0.06), rgba(6,182,212,0.02));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:var(--muted);
+        font-weight:700;
+        letter-spacing:0.6px;
+    }
+
+    .fc-image .fc-image-text{
+        font-size:14px;
+        background: rgba(255,255,255,0.6);
+        padding:6px 10px;
+        border-radius:999px;
+        color:#083344;
+        backdrop-filter: blur(4px);
+    }
+
+    .fc-card-body{
+        padding:14px;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        flex:1 1 auto;
+    }
+
+    .product-title{
+        font-size:15px;
+        margin:0;
+        color:#071b26;
+    }
+
+    .product-price{
+        color:var(--accent);
+        font-weight:700;
+        margin:0;
+        font-size:14px;
+    }
+
+    .product-desc{
+        color:var(--muted);
+        font-size:13px;
+        margin:0;
+        flex:1 1 auto;
+    }
+
+    .fc-card-body .btn{
+        margin-top:8px;
+        align-self:flex-start;
+    }
+
+    /* responsive */
+    @media (max-width:1100px){
+        .fc-grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width:820px){
+        .fc-grid{ grid-template-columns: repeat(2, 1fr); }
+        .fc-controls{ justify-content:flex-start; }
+    }
+    @media (max-width:520px){
+        .fc-grid{ grid-template-columns: 1fr; }
+        .fc-header{ align-items:flex-start; }
+    }
+</style>
+
+<section class="featured-collection" aria-labelledby="fc-title">
+    <div class="container">
+        <header class="fc-header">
+            <h2 id="fc-title">Featured Collection — Placeholder Title</h2>
+            <p class="fc-subtitle">This is placeholder text. Replace with a short description that highlights your collection's story.</p>
+        </header>
+
+        <div class="fc-controls">
+            <a href="#" class="btn btn-outline" role="button">View collection</a>
+        </div>
+
+        <div class="fc-grid">
+            {% comment %} Placeholder product cards — iterate or replace with real product loop {% endcomment %}
+            {% for i in (1..4) %}
+                <article class="fc-card" aria-labelledby="product-{{ i }}">
+                    <div class="fc-image" role="img" aria-label="Product image placeholder">
+                        <span class="fc-image-text">Image {{ i }}</span>
+                    </div>
+
+                    <div class="fc-card-body">
+                        <h3 id="product-{{ i }}" class="product-title">Product name {{ i }}</h3>
+                        <p class="product-price">€00.00</p>
+                        <p class="product-desc">Short placeholder description for product {{ i }}. Swap in dynamic product data as needed.</p>
+                        <a href="#" class="btn btn-primary" role="button">Add to cart</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Featured Collection",
+    "tag": "section",
+    "settings": [],
+    "presets": [
+        {
+            "name": "Featured Collection",
+            "settings": {}
+        }
+    ]
+
+}
+{% endschema %}
