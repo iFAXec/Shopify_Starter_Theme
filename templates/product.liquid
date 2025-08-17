@@ -219,25 +219,12 @@
                 {{ product.description | strip_html | truncate: 400 }}
             </div>
 
-            <form action="/cart/add" method="post" class="cart-form" style="margin-top:6px">
-                {%- if product.variants.size > 1 -%}
-                <label for="ProductSelect">Variant</label>
-                <select id="ProductSelect" name="id" class="qty"
-                    style="width:100%;margin-top:6px;margin-bottom:8px;">
-                    {%- for variant in product.variants -%}
-                    <option value="{{ variant.id }}">{{ variant.title }} — {{ variant.price | money }}</option>
-                    {%- endfor -%}
-                </select>
-                {%- else -%}
-                <!-- single-variant product -->
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                {%- endif -%}
+            {% form 'product', product %}
+                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id}}">
+                <button type="submit">Add To Cart</button>
 
-                <div class="actions">
-                    <input type="number" name="quantity" value="1" min="1" class="qty" aria-label="Quantity">
-                    <button type="submit" class="add-to-cart">Add to cart</button>
-                </div>
-            </form>
+                {{ form | payment_button }}
+            {% endform %}
         </div>
     </div>
 
