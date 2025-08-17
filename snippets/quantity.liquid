@@ -1,0 +1,87 @@
+<div class="quantity-selector" role="group" aria-label="Quantity selector">
+    <button type="button" class="quantity__button quantity__button--decrease" aria-label="Decrease quantity"
+        data-action="decrease">−</button>
+    
+    <input class="quantity__input" type="number" name="quantity" value="{{ value | default: 1 }}" min="1" step="1"
+        inputmode="numeric" pattern="\d*" aria-live="polite" aria-label="Quantity">
+    
+    <button type="button" class="quantity__button quantity__button--increase" aria-label="Increase quantity"
+        data-action="increase">+</button>
+    </div>
+
+<style>
+    .quantity-selector {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quantity__button {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #d1d5db;
+        background: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .quantity__button:active {
+        transform: translateY(1px);
+    }
+
+    .quantity__input {
+        width: 64px;
+        padding: 6px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    /* Small responsive tweak */
+    @media (max-width:420px) {
+        .quantity__input {
+            width: 48px;
+        }
+    }
+</style>
+<script>
+(() => {
+    document.querySelectorAll('.quantity-selector').forEach(wrapper => {
+        const input = wrapper.querySelector('.quantity__input');
+        const dec = wrapper.querySelector('[data-action="decrease"]');
+        const inc = wrapper.querySelector('[data-action="increase"]');
+        if (!input) return;
+
+        const min = Number(input.getAttribute('min')) || 1;
+        const step = Number(input.getAttribute('step')) || 1;
+        const clamp = v => Math.max(min, Number(v) || min);
+
+        const emitChange = () => input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        const doStep = delta => {
+            if (delta > 0 && typeof input.stepUp === 'function') input.stepUp();
+            else if (delta < 0 && typeof input.stepDown === 'function') input.stepDown();
+            else input.value = clamp(Number(input.value) + delta);
+            emitChange();
+        };
+
+        dec && dec.addEventListener('click', () => doStep(-step));
+        inc && inc.addEventListener('click', () => doStep(+step));
+
+        input.addEventListener('input', () => {
+            input.value = clamp(input.value);
+        });
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp') { e.preventDefault(); doStep(+step); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); doStep(-step); }
+        });
+    });
+})();
+</script>
