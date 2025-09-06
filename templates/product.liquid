@@ -133,29 +133,51 @@
 </style>
 
 <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof Splide === 'undefined') return;
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     if (typeof Splide === 'undefined') return;
 
-        var splide = new Splide('#main-carousel', {
-            width:400,
-            height:400,
-            pagination: false,
-            cover:true
-        });
+    //     var splide = new Splide('#main-carousel', {
+    //         width:400,
+    //         height:400,
+    //         pagination: false,
+    //         cover:true
+    //     });
 
-        splide.mount();
+    //     splide.mount();
 
-        // Collect thumbnail elements inside #thumbnails and wire click to move carousel
-        var thumbnails = document.querySelectorAll('#thumbnails .thumbnail');
+    //     // Collect thumbnail elements inside #thumbnails and wire click to move carousel
+    //     var thumbnails = document.querySelectorAll('#thumbnails .thumbnail');
 
-        for (var i = 0; i < thumbnails.length; i++) {
-            (function (index) {
-                thumbnails[index].addEventListener('click', function () {
-                    splide.go(index);
-                });
-            })(i);
-        }
-    });
+    //     for (var i = 0; i < thumbnails.length; i++) {
+    //         (function (index) {
+    //             thumbnails[index].addEventListener('click', function () {
+    //                 splide.go(index);
+    //             });
+    //         })(i);
+    //     }
+    // });
+
+    document.querySelector("[action='/cart/add']").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        let addToCartForm = document.querySelector('form[action$="/cart/add"]');
+        let formData = new FormData(addToCartForm);
+
+        formData.append('sections', "cart-drawer")
+
+        fetch(window.Shopify.routes.root + 'cart/add.js', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                document.dispatchEvent(new CustomEvent('product:added'))
+                return response.json();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    })
+
 </script>
 
 <div class="product-page">

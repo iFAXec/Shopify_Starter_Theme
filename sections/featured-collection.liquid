@@ -183,7 +183,6 @@
         {% if section.settings.featured_collection and section.settings.featured_collection.products %}
             {% assign product_coll = section.settings.featured_collection.products %}
             <script>
-                console.log("featured_product:", {{product_coll | json}})
             </script>
             {% for featured_product in product_coll %}
 

@@ -1,0 +1,213 @@
+<!-- /snippets/cart-drawer.liquid -->
+<button id="cart-open-btn" aria-controls="cart-drawer" aria-expanded="false">Open Cart</button>
+
+<style>
+    :root {
+        --drawer-width: 360px;
+        --overlay-bg: rgba(0, 0, 0, 0.5);
+        --accent: #0a7cff;
+        --muted: #666;
+        --radius: 8px;
+        --spacing: 12px;
+    }
+
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+
+    /* Overlay & drawer */
+    #cart-overlay {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay-bg);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+        z-index: 900;
+    }
+
+    #cart-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #cart-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: var(--drawer-width);
+        max-width: 100%;
+        transform: translateX(110%);
+        transition: transform 260ms cubic-bezier(.2, .9, .2, 1);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        box-shadow: -8px 0 24px rgba(0, 0, 0, .12);
+    }
+
+    #cart-drawer.open {
+        transform: translateX(0);
+    }
+
+    /* Contents */
+    #cart-drawer header {
+        padding: 16px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    #cart-drawer .title {
+        font-weight: 600;
+    }
+
+    .close-btn {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    #cart-items {
+        padding: 12px;
+        overflow: auto;
+        flex: 1 1 auto;
+    }
+
+    .cart-item {
+        display: flex;
+        gap: 12px;
+        padding: 10px 6px;
+        border-bottom: 1px solid #f5f5f5;
+        align-items: center;
+    }
+
+    .cart-item img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .cart-item .meta {
+        flex: 1;
+    }
+
+    .cart-item .name {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .cart-item .meta .price {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    footer {
+        border-top: 1px solid #eee;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+
+    .checkout-btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+    }
+</style>
+
+<div id="cart-overlay" tabindex="-1" aria-hidden="true"></div>
+
+<aside id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
+    <header>
+        <div class="title" id="cart-title">Your Cart</div>
+        <button class="close-btn" id="cart-close-btn" aria-label="Close cart">&times;</button>
+    </header>
+
+    {% if cart.item_count == 0 %}
+    <div class="empty">Your cart is empty.</div>
+    {% else %}
+    <div id="cart-items" aria-live="polite">
+        {% for item in cart.items %}
+        <div class="cart-item" data-line="{{ forloop.index }}">
+            {% if item.image %}
+            <img src="{{ item.image | img_url: '300x' }}" alt="{{ item.title | escape }}">
+            {% endif %}
+            <div class="meta">
+                <div class="name">{{ item.product.title }}{% if item.variant_title %} — {{ item.variant_title }}{% endif
+                    %}</div>
+                <div class="price">{{ item.quantity }} × {{ item.price | money }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <footer>
+        <div class="total-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">{{ cart.total_price | money }}</span>
+        </div>
+        <a href="/checkout" class="checkout-btn" id="checkout-btn">Checkout</a>
+    </footer>
+    {% endif %}
+</aside>
+
+<script>
+    (function () {
+        var overlay = document.getElementById('cart-overlay');
+        var drawer = document.getElementById('cart-drawer');
+        var openBtn = document.getElementById('cart-open-btn');
+        var closeBtn = document.getElementById('cart-close-btn');
+
+        
+        function open() {
+            overlay.classList.add('open');
+            drawer.classList.add('open');
+            openBtn.setAttribute('aria-expanded', 'true');
+            overlay.setAttribute('aria-hidden', 'false');
+            closeBtn.focus();
+        }
+        function close() {
+            overlay.classList.remove('open');
+            drawer.classList.remove('open');
+            openBtn.setAttribute('aria-expanded', 'false');
+            overlay.setAttribute('aria-hidden', 'true');
+            openBtn.focus();
+        }
+
+        document.addEventListener('product:added', function () {
+            open();
+        });
+
+        openBtn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        overlay.addEventListener('click', close);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    })();
+</script>

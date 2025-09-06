@@ -202,7 +202,7 @@
         <class="card">
             <h1>Your cart</h1>
 
-            {%- if cart.empty? -%}
+        {%- if cart.empty? -%}
             <p>Your cart is empty.</p>
             <button >
                 <a href="/">back to shopping</a>
@@ -223,7 +223,7 @@
                         <a class="remove" href="{{item.url_to_remove}}">Remove</a>
                     </div>
                 </div>
-                {% endfor %}
+            {% endfor %}
 
                 <aside class="summary">
                     <div class="card totals">
@@ -237,7 +237,7 @@
                         <a href="/checkout" class="checkout" disabled>Proceed to checkout</a>
                     </div>
                 </aside>
-    {%- endif -%}
+        {%- endif -%}
 
     </main>
     </div>
