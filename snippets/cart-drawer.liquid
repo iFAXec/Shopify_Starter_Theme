@@ -297,6 +297,13 @@
             document.querySelector(".cart-drawer__footer").style.display = "block";
         });
 
+        document.querySelectorAll('.remove').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+            console.log(btn);
+        })
+
+
         // Remove item by line index (simple approach using /cart/change.js).
         // After successful change we reload the page to get updated cart HTML.
         removeButtons.forEach(function(btn) {

@@ -157,7 +157,6 @@
                     if (newCartDrawer) {
                         const parser = new DOMParser();
                         const dom = parser.parseFromString(newCartDrawer,"text/html");
-                        console.log(dom);
                         document.querySelector("#cart-drawer-items").innerHTML = dom.querySelector("#items").innerHTML;
                         document.querySelector("#cart-drawer-subtotal").innerHTML = dom.querySelector("#cart-subtotal").innerHTML;
                     }
