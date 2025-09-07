@@ -143,7 +143,6 @@
         .cart-drawer { width: 100%; }
     }
 </style>
-
 <!--
     Markup:
     - .cart-drawer-root is a wrapper that gets class .cart-drawer--open when opened.
@@ -164,7 +163,22 @@
         <!-- Items list (rendered server-side using Liquid) -->
         <div class="cart-drawer__items" id="cart-drawer-items">
             {%- if cart.item_count == 0 -%}
-                <p class="cart-drawer__empty" style="padding: 12px; color:#666;">Your cart is empty.</p>
+                <div>
+                    <p class="cart-drawer__empty" style="padding: 12px; color:#666;">Your cart is empty.</p>
+                </div>
+                <div class="cart-drawer__footer" style="display : none;">
+                    <div class="cart-drawer__subtotal">
+                        <span>Subtotal</span>
+                        <span id="cart-drawer-subtotal">{{ cart.total_price | money }}</span>
+                    </div>
+                    <div class="cart-drawer__actions">
+                        <!-- Checkout link -->
+                        <a href="/checkout" class="button button--primary">Checkout</a>
+                    </div>
+                </div>
+
+
+
             {%- else -%}
                 {%- for item in cart.items -%}
                     <div class="cart-drawer__item" data-line="{{ forloop.index }}">
@@ -175,7 +189,34 @@
                         <div class="cart-drawer__item-info">
                             <div class="cart-drawer__item-title">{{ item.product.title }}</div>
                             <div class="cart-drawer__item-meta">
-                                {{ item.variant_title }} • {{ item.quantity }} × {{ item.price | money }}
+                                {{ item.variant_title }} • {{ item.price | money }}
+                            </div>
+
+                            <!-- Quantity controls: decrease, current qty (readonly), increase -->
+                            <div class="cart-drawer__quantity" aria-label="Quantity controls">
+                                <button
+                                    type="button"
+                                    class="cart-drawer__qty-btn"
+                                    data-qty-decrease="{{ forloop.index }}"
+                                    aria-label="Decrease quantity"
+                                >−</button>
+
+                                <input
+                                    type="text"
+                                    class="cart-drawer__qty-input"
+                                    data-qty-line="{{ forloop.index }}"
+                                    value="{{ item.quantity }}"
+                                    inputmode="numeric"
+                                    aria-label="Quantity"
+                                    readonly
+                                />
+
+                                <button
+                                    type="button"
+                                    class="cart-drawer__qty-btn"
+                                    data-qty-increase="{{ forloop.index }}"
+                                    aria-label="Increase quantity"
+                                >+</button>
                             </div>
                         </div>
 
@@ -197,8 +238,6 @@
             <div class="cart-drawer__actions">
                 <!-- Checkout link -->
                 <a href="/checkout" class="button button--primary">Checkout</a>
-                <!-- View cart (go to cart page) -->
-                <a href="/cart" class="button button--secondary">View cart</a>
             </div>
         </div>
     </aside>
@@ -208,6 +247,7 @@
 <button class="open-cart-drawer button button--secondary" style="position:fixed; right:16px; bottom:16px; z-index: 1100;">
     Open cart
 </button>
+
 
 <script>
     // Simple JS to open/close drawer and to remove items.
@@ -254,6 +294,7 @@
 
         document.addEventListener("product:added", function() {
             openDrawer();
+            document.querySelector(".cart-drawer__footer").style.display = "block";
         });
 
         // Remove item by line index (simple approach using /cart/change.js).

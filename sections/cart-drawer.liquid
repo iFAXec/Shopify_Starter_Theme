@@ -7,13 +7,26 @@
                 <p class="item-title">{{item.title}}</p>
                 <p class="item-desc">Variant / Size / Color</p>
             </div>
+
+            <!-- Quantity controls: decrease, current qty (readonly), increase -->
+            <div class="cart-drawer__quantity" aria-label="Quantity controls">
+                <button type="button" class="cart-drawer__qty-btn" data-qty-decrease="{{ forloop.index }}"
+                    aria-label="Decrease quantity">−</button>
+            
+                <input type="text" class="cart-drawer__qty-input" data-qty-line="{{ forloop.index }}" value="{{ item.quantity }}"
+                    inputmode="numeric" aria-label="Quantity" readonly />
+            
+                <button type="button" class="cart-drawer__qty-btn" data-qty-increase="{{ forloop.index }}"
+                    aria-label="Increase quantity">+</button>
+            </div>
+            </div>
             <div class="item-controls">
                 <div class="price">{{item.price | money}}</div>
                 <div class="qty">{{item.quantity}}</div>
                 <a class="remove" href="{{item.url_to_remove}}">Remove</a>
             </div>
-            </div>
-        </div>
+    </div>
+        
     {% endfor %}
 </div>
 
