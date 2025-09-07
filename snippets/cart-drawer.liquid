@@ -1,213 +1,296 @@
-<!-- /snippets/cart-drawer.liquid -->
-<button id="cart-open-btn" aria-controls="cart-drawer" aria-expanded="false">Open Cart</button>
+{%- comment -%}
+    cart-drawer.liquid
+    Simple cart drawer snippet with CSS (at top), HTML using Liquid to list cart items,
+    and JavaScript to open/close the drawer and remove items (uses /cart/change.js).
+    - CSS is inside <style> at the top as requested.
+    - Keep this snippet lightweight and easy to understand.
+{%- endcomment -%}
 
 <style>
-    :root {
-        --drawer-width: 360px;
-        --overlay-bg: rgba(0, 0, 0, 0.5);
-        --accent: #0a7cff;
-        --muted: #666;
-        --radius: 8px;
-        --spacing: 12px;
-    }
-
-    body {
-        margin: 0;
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-    }
-
-    /* Overlay & drawer */
-    #cart-overlay {
+    /* Overlay behind the drawer */
+    .cart-drawer__overlay {
         position: fixed;
         inset: 0;
-        background: var(--overlay-bg);
+        background: rgba(0,0,0,0.4);
         opacity: 0;
-        pointer-events: none;
-        transition: opacity 200ms ease;
-        z-index: 900;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+        z-index: 999;
     }
 
-    #cart-overlay.open {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    #cart-drawer {
+    /* Drawer panel (right side) */
+    .cart-drawer {
         position: fixed;
         top: 0;
         right: 0;
         height: 100%;
-        width: var(--drawer-width);
+        width: 360px;
         max-width: 100%;
+        background: #fff;
+        box-shadow: -16px 0 30px rgba(0,0,0,0.15);
         transform: translateX(110%);
-        transition: transform 260ms cubic-bezier(.2, .9, .2, 1);
+        transition: transform 0.25s ease;
         z-index: 1000;
         display: flex;
         flex-direction: column;
-        background: #fff;
-        box-shadow: -8px 0 24px rgba(0, 0, 0, .12);
     }
 
-    #cart-drawer.open {
+    /* When active, show overlay + drawer */
+    .cart-drawer--open .cart-drawer__overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+    .cart-drawer--open .cart-drawer {
         transform: translateX(0);
     }
 
-    /* Contents */
-    #cart-drawer header {
+    /* Drawer header */
+    .cart-drawer__header {
         padding: 16px;
         border-bottom: 1px solid #eee;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
-
-    #cart-drawer .title {
+    .cart-drawer__title {
         font-weight: 600;
+        font-size: 16px;
     }
-
-    .close-btn {
-        background: transparent;
+    .cart-drawer__close {
+        background: none;
         border: none;
-        font-size: 20px;
+        font-size: 18px;
         cursor: pointer;
     }
 
-    #cart-items {
+    /* Items container */
+    .cart-drawer__items {
         padding: 12px;
         overflow: auto;
         flex: 1 1 auto;
     }
-
-    .cart-item {
+    .cart-drawer__item {
         display: flex;
         gap: 12px;
-        padding: 10px 6px;
-        border-bottom: 1px solid #f5f5f5;
+        padding: 10px 0;
+        border-bottom: 1px solid #f4f4f4;
         align-items: center;
     }
-
-    .cart-item img {
-        width: 56px;
-        height: 56px;
+    .cart-drawer__item img {
+        width: 64px;
+        height: 64px;
         object-fit: cover;
-        border-radius: 6px;
+        border-radius: 4px;
+    }
+    .cart-drawer__item-info {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .cart-drawer__item-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .cart-drawer__item-meta {
+        font-size: 13px;
+        color: #666;
+    }
+    .cart-drawer__remove {
+        background: none;
+        border: none;
+        color: #c00;
+        cursor: pointer;
+        font-size: 13px;
     }
 
-    .cart-item .meta {
+    /* Footer with subtotal and actions */
+    .cart-drawer__footer {
+        padding: 12px;
+        border-top: 1px solid #eee;
+    }
+    .cart-drawer__subtotal {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+    .cart-drawer__actions {
+        display: flex;
+        gap: 8px;
+    }
+    .button {
+        padding: 10px 12px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .button--primary {
+        background: #111;
+        color: #fff;
+        flex: 1;
+    }
+    .button--secondary {
+        background: #fff;
+        border: 1px solid #ddd;
         flex: 1;
     }
 
-    .cart-item .name {
-        font-size: 14px;
-        margin-bottom: 6px;
-    }
-
-    .cart-item .meta .price {
-        color: var(--muted);
-        font-size: 13px;
-        margin-bottom: 6px;
-    }
-
-    footer {
-        border-top: 1px solid #eee;
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .total-row {
-        display: flex;
-        justify-content: space-between;
-        font-weight: 600;
-    }
-
-    .checkout-btn {
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        border-radius: 8px;
-        cursor: pointer;
-        text-decoration: none;
-        text-align: center;
-        display: inline-block;
-    }
-
-    .empty {
-        padding: 24px;
-        text-align: center;
-        color: var(--muted);
+    /* Simple responsive tweak */
+    @media (max-width: 420px) {
+        .cart-drawer { width: 100%; }
     }
 </style>
 
-<div id="cart-overlay" tabindex="-1" aria-hidden="true"></div>
+<!--
+    Markup:
+    - .cart-drawer-root is a wrapper that gets class .cart-drawer--open when opened.
+    - There is an overlay and the drawer panel itself.
+    - Use elements with class "open-cart-drawer" to open the drawer (example provided).
+-->
+<div id="cart-drawer-root" class="cart-drawer-root">
+    <!-- Overlay (click to close) -->
+    <div class="cart-drawer__overlay" data-close-cart-drawer></div>
 
-<aside id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
-    <header>
-        <div class="title" id="cart-title">Your Cart</div>
-        <button class="close-btn" id="cart-close-btn" aria-label="Close cart">&times;</button>
-    </header>
+    <!-- The drawer panel -->
+    <aside class="cart-drawer" role="dialog" aria-labelledby="cart-drawer-title" aria-modal="true">
+        <div class="cart-drawer__header">
+            <div id="cart-drawer-title" class="cart-drawer__title">Your cart</div>
+            <button class="cart-drawer__close" aria-label="Close cart" data-close-cart-drawer>&times;</button>
+        </div>
 
-    {% if cart.item_count == 0 %}
-    <div class="empty">Your cart is empty.</div>
-    {% else %}
-    <div id="cart-items" aria-live="polite">
-        {% for item in cart.items %}
-        <div class="cart-item" data-line="{{ forloop.index }}">
-            {% if item.image %}
-            <img src="{{ item.image | img_url: '300x' }}" alt="{{ item.title | escape }}">
-            {% endif %}
-            <div class="meta">
-                <div class="name">{{ item.product.title }}{% if item.variant_title %} — {{ item.variant_title }}{% endif
-                    %}</div>
-                <div class="price">{{ item.quantity }} × {{ item.price | money }}</div>
+        <!-- Items list (rendered server-side using Liquid) -->
+        <div class="cart-drawer__items" id="cart-drawer-items">
+            {%- if cart.item_count == 0 -%}
+                <p class="cart-drawer__empty" style="padding: 12px; color:#666;">Your cart is empty.</p>
+            {%- else -%}
+                {%- for item in cart.items -%}
+                    <div class="cart-drawer__item" data-line="{{ forloop.index }}">
+                        <!-- Product image -->
+                        <img src="{{ item.image | img_url: '200x' }}" alt="{{ item.title }}" />
+
+                        <!-- Title, variant and price -->
+                        <div class="cart-drawer__item-info">
+                            <div class="cart-drawer__item-title">{{ item.product.title }}</div>
+                            <div class="cart-drawer__item-meta">
+                                {{ item.variant_title }} • {{ item.quantity }} × {{ item.price | money }}
+                            </div>
+                        </div>
+
+                        <!-- Remove button: uses the line number (1-based) to remove via /cart/change.js -->
+                        <button class="cart-drawer__remove" data-remove-line="{{ forloop.index }}" aria-label="Remove item">
+                            Remove
+                        </button>
+                    </div>
+                {%- endfor -%}
+            {%- endif -%}
+        </div>
+
+        <!-- Footer with subtotal and action buttons -->
+        <div class="cart-drawer__footer">
+            <div class="cart-drawer__subtotal">
+                <span>Subtotal</span>
+                <span id="cart-drawer-subtotal">{{ cart.total_price | money }}</span>
+            </div>
+            <div class="cart-drawer__actions">
+                <!-- Checkout link -->
+                <a href="/checkout" class="button button--primary">Checkout</a>
+                <!-- View cart (go to cart page) -->
+                <a href="/cart" class="button button--secondary">View cart</a>
             </div>
         </div>
-        {% endfor %}
-    </div>
+    </aside>
+</div>
 
-    <footer>
-        <div class="total-row">
-            <span>Subtotal</span>
-            <span id="cart-subtotal">{{ cart.total_price | money }}</span>
-        </div>
-        <a href="/checkout" class="checkout-btn" id="checkout-btn">Checkout</a>
-    </footer>
-    {% endif %}
-</aside>
+<!-- Example trigger (you can remove this and use your own cart icon/button with class open-cart-drawer) -->
+<button class="open-cart-drawer button button--secondary" style="position:fixed; right:16px; bottom:16px; z-index: 1100;">
+    Open cart
+</button>
 
 <script>
-    (function () {
-        var overlay = document.getElementById('cart-overlay');
-        var drawer = document.getElementById('cart-drawer');
-        var openBtn = document.getElementById('cart-open-btn');
-        var closeBtn = document.getElementById('cart-close-btn');
+    // Simple JS to open/close drawer and to remove items.
+    (function() {
+        // Root element that will receive the .cart-drawer--open class
+        var root = document.getElementById('cart-drawer-root');
+        var openButtons = document.querySelectorAll('.open-cart-drawer');
+        var closeButtons = document.querySelectorAll('[data-close-cart-drawer]');
+        var removeButtons = document.querySelectorAll('[data-remove-line]');
 
-        
-        function open() {
-            overlay.classList.add('open');
-            drawer.classList.add('open');
-            openBtn.setAttribute('aria-expanded', 'true');
-            overlay.setAttribute('aria-hidden', 'false');
-            closeBtn.focus();
-        }
-        function close() {
-            overlay.classList.remove('open');
-            drawer.classList.remove('open');
-            openBtn.setAttribute('aria-expanded', 'false');
-            overlay.setAttribute('aria-hidden', 'true');
-            openBtn.focus();
+        // Open drawer
+        function openDrawer() {
+            root.classList.add('cart-drawer--open');
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
         }
 
-        document.addEventListener('product:added', function () {
-            open();
+        // Close drawer
+        function closeDrawer() {
+            root.classList.remove('cart-drawer--open');
+            document.body.style.overflow = '';
+        }
+
+        // Attach listeners to open buttons
+        openButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openDrawer();
+            });
         });
 
-        openBtn.addEventListener('click', open);
-        closeBtn.addEventListener('click', close);
-        overlay.addEventListener('click', close);
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+        // Attach listeners to close buttons / overlay
+        closeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeDrawer();
+            });
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeDrawer();
+        });
+
+        document.addEventListener("product:added", function() {
+            openDrawer();
+        });
+
+        // Remove item by line index (simple approach using /cart/change.js).
+        // After successful change we reload the page to get updated cart HTML.
+        removeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var line = btn.getAttribute('data-remove-line');
+                if (!line) return;
+                // Simple confirm (optional)
+                if (!confirm('Remove this item from your cart?')) return;
+
+                // POST to /cart/change.js with line and quantity 0 to remove
+                fetch('/cart/change.js', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'line=' + encodeURIComponent(line) + '&quantity=0'
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
+                .then(function(cart) {
+                    // Simple approach: reload page to reflect updated cart on the server
+                    window.location.reload();
+                })
+                .catch(function(err) {
+                    console.error('Error removing item:', err);
+                    alert('Unable to remove item. Please try again.');
+                });
+            });
+        });
+
+        // Note: If your theme updates the DOM after ajax cart events, you may need to
+        // re-query removeButtons and re-bind events, or convert event binding above to
+        // use event delegation for dynamic content.
     })();
 </script>

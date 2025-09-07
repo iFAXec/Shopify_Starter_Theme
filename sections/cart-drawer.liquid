@@ -1,1 +1,23 @@
-<h1>Cart Drawer</h1>
+<div id="items">
+    {% for item in cart.items %}
+    <div class="cart-items">
+        <div class="item">
+            <img src="{{item.image | img_url: width: 300}}" alt="{{item.title}}">
+            <div class="item-meta">
+                <p class="item-title">{{item.title}}</p>
+                <p class="item-desc">Variant / Size / Color</p>
+            </div>
+            <div class="item-controls">
+                <div class="price">{{item.price | money}}</div>
+                <div class="qty">{{item.quantity}}</div>
+                <a class="remove" href="{{item.url_to_remove}}">Remove</a>
+            </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="cart-drawer__subtotal">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">{{ cart.total_price | money }}</span>
+</div>
