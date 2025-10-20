@@ -23,7 +23,9 @@
             <div class="item-controls">
                 <div class="price">{{item.price | money}}</div>
                 <div class="qty">{{item.quantity}}</div>
-                <a class="remove" href="{{item.url_to_remove}}">Remove</a>
+                <delete-btn>
+                    <a class="remove" href="{{item.url_to_remove}}">Remove</a>
+                </delete-btn>
             </div>
     </div>
         
@@ -34,3 +36,4 @@
         <span>Subtotal</span>
         <span id="cart-subtotal">{{ cart.total_price | money }}</span>
 </div>
+

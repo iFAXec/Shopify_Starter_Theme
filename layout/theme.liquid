@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Starter Theme</title>
     {{content_for_header}}
+
+    <script src="{{ 'global.js' | asset_url }}" defer></script>
 </head>
 <body>
 
-{%- render 'cart-drawer'-%}
+    {%- render 'cart-drawer'-%}
 
     {{content_for_layout}}
 </body>
